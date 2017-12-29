@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"net/http"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/middleware"
 	"github.com/gobuffalo/buffalo/middleware/ssl"
@@ -50,8 +52,20 @@ func App() *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
+		api := app.Group("/api")
+
+		appApi := api.Group("/app")
+		appApi.GET("/routes", RoutesHandler)
+
+		i18nApi := api.Group("/i18n")
+		i18nApi.GET("/{key}", I18NHandler)
+
 		app.ServeFiles("/assets", assetsBox)
 	}
 
 	return app
+}
+
+func RoutesHandler(c buffalo.Context) error {
+	return c.Render(http.StatusOK, r.JSON(app.Routes()))
 }
